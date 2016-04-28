@@ -9,20 +9,9 @@
 import UIKit
 let cellId="cellId"
 let commentCellId="CommentcellId"
-class Post {
-    var title : String?
-    var newName: String?
-    var link: String?
-    var cntHapy: Int?
-    var cntNrm: Int?
-    var cntUnHapy: Int?
-}
-class Comment{
-    var cmTitle:String?
-    var userName:String?
-}
+
 class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
-var posts = [Post]()
+    var posts = [Post]()
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -75,6 +64,14 @@ var posts = [Post]()
 
     override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+        for cell in collectionView!.visibleCells() {
+            
+            if let fc = cell as? FeedCell {
+                //print("hello")
+                //fc.appsCollectionView.sizeToFit()
+                fc.appsCollectionView.collectionViewLayout.invalidateLayout()
+            }
+        }
         collectionView?.collectionViewLayout.invalidateLayout()
     }
 
@@ -82,7 +79,7 @@ var posts = [Post]()
 }
 class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionViewDelegate , UICollectionViewDelegateFlowLayout
 {
-    var comments = [Comment]()
+    //var comments = [Comment]()
     var post: Post?{
         didSet{
             if let name = post?.title, let newName = post?.newName
@@ -107,7 +104,20 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
                 
                 
                 labelTitle.attributedText = att
-            }
+                let cmt1 = Comment()
+                cmt1.cmTitle = " My setup is that I have this collectionview inside a custom tableview cell and I do return the height of my tableview cell programatically (depending on the content). So it could be that my warnings had to do with my collectionview not fitting inside the tableview cell. So setting the initial collectionview to a smaller value fixed it."
+                cmt1.userName = "M.y"
+                post?.comments.append(cmt1)
+                let cmt2 = Comment()
+                cmt2.cmTitle = "actually did the trick. it also resolved my issue in swift, where the cells of a horizontal flow layout had a frame top of -32 (???) and did not fit into the collection view properly."
+                cmt2.userName = "fatih"
+                post?.comments.append(cmt2)
+                
+                let cmt3 = Comment()
+                cmt3.cmTitle = "actually did the trick. it also resolved my issue in swift, where the cells of a horizontal flow layout had a frame top of -32 (???) and did not fit into the collection view properly."
+                cmt3.userName = "fatih"
+                post?.comments.append(cmt3)
+                           }
             if let link = post?.link {
             
                 labelLink.text = link
@@ -119,19 +129,7 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         super.init(frame: frame)
         
         backgroundColor = UIColor.whiteColor()
-        let cmt1 = Comment()
-        cmt1.cmTitle = " My setup is that I have this collectionview inside a custom tableview cell and I do return the height of my tableview cell programatically (depending on the content). So it could be that my warnings had to do with my collectionview not fitting inside the tableview cell. So setting the initial collectionview to a smaller value fixed it."
-        cmt1.userName = "M.y"
-        comments.append(cmt1)
-        let cmt2 = Comment()
-        cmt2.cmTitle = "actually did the trick. it also resolved my issue in swift, where the cells of a horizontal flow layout had a frame top of -32 (???) and did not fit into the collection view properly."
-        cmt2.userName = "fatih"
-        comments.append(cmt2)
-        
-        let cmt3 = Comment()
-        cmt3.cmTitle = "actually did the trick. it also resolved my issue in swift, where the cells of a horizontal flow layout had a frame top of -32 (???) and did not fit into the collection view properly."
-        cmt3.userName = "fatih"
-        comments.append(cmt3)
+    
         setupViews()
     }
     required init?(coder aDecoder: NSCoder) {
@@ -161,6 +159,7 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         return label
     }()
     let btnHapy = FeedCell.buttonForTitle("654", imageName: "emo1")
+    
     let btnNrm = FeedCell.buttonForTitle("21", imageName: "emo2")
     let btnUnHapy = FeedCell.buttonForTitle("32", imageName: "emo3")
     let labelHapyCount :UILabel = {
@@ -193,7 +192,7 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         let tf = UITextField()
         tf.font = UIFont.systemFontOfSize(13)
         tf.placeholder = "Add your comment"
-        tf.textColor = UIColor.rgb(65, green: 65, blue: 65)
+        tf.textColor = UIColor.rgb(185, green: 181, blue: 181)
         //tf.backgroundColor = UIColor.greenColor()
         tf.layer.borderColor =  UIColor.rgb(101, green: 99, blue: 99).CGColor
         tf.layer.borderWidth = 1
@@ -224,20 +223,48 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         btn.setImage(UIImage(named: "fb"), forState: .Normal)
         return  btn
     }()
-    func btnTapped(){
-    print("Clicked")
+    func btnTouchHapy(sender: UIButton){
+        print ("dscds")
+        
+    }
+    func btnSendCommentTouch(sender: UIButton)
+    {
+        if let cmt = txtComment.text
+        {
+            let comment = Comment()
+            comment.cmTitle = cmt
+            comment.userName = "Name :\(cmt)"
+            post?.comments.insert(comment, atIndex: 0)
+            appsCollectionView.reloadData()
+            let indexPath = NSIndexPath(forItem: 0, inSection: 0)
+            appsCollectionView.selectItemAtIndexPath(indexPath, animated: true, scrollPosition: .Left)
+            //let newIndexPath = NSIndexPath(forRow: post!.comments.count, inSection: 0)
+
+            //meals.append(meal)
+            //appsCollectionView.insertItemsAtIndexPaths([newIndexPath]
+            
+            
+            
+        }else{
+        
+            print("mesaj gelecek ")
+        }
     }
     func setupViews(){
         let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .Vertical
+        //layout.scrollDirection = .Vertical
 
-        appsCollectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)  //(frame, collectionViewLayout: layout)
+        appsCollectionView = UICollectionView(frame: self.frame, collectionViewLayout: layout)  //(frame, collectionViewLayout: layout)
         
         appsCollectionView.backgroundColor = UIColor.clearColor()
         appsCollectionView.translatesAutoresizingMaskIntoConstraints = false
         appsCollectionView.alwaysBounceVertical = true
-
+        appsCollectionView.dataSource = self
+        appsCollectionView.delegate = self
+        appsCollectionView.registerClass(CommentCell.self, forCellWithReuseIdentifier: "commentid")
         
+        btnHapy.addTarget(self, action: Selector("btnTouchHapy:"), forControlEvents: .TouchDown)
+        btnSend.addTarget(self, action: Selector("btnSendCommentTouch:"), forControlEvents: .TouchDown)
         addSubview(labelTitle)
         addSubview(labelLink)
         addSubview(btnHapy)
@@ -251,13 +278,8 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         
         
         
-        appsCollectionView.dataSource = self
-        appsCollectionView.delegate = self
-        appsCollectionView.registerClass(CommentCell.self, forCellWithReuseIdentifier: "commentid")
-        //collectionView?.alwaysBounceVertical = true
-        //self.appsCollectionView.registerClass(FeedCell.self, forCellWithReuseIdentifier: cellId)
-        //btnHapy.addTarget(FeedCell.self, action: "btnTapped", forControlEvents: .TouchDown)
-
+     
+        //button.addTarget(self, action:Selector("ratingButtonTapped:"), forControlEvents: .TouchDown)
         //let horizontalConstraintsRedBlue = NSLayoutConstraint.constraintsWithVisualFormat("H:|-spacing-[red(>=lowWidth,<=highWidth@priority)]-redBlueSpacing-[blue(==red)]-spacing-|", options: NSLayoutFormatOptions(), metrics: metrics, views: views)
         addConstraintsWithFormat("H:|-8-[v0]-8-|", views: labelTitle)
         addConstraintsWithFormat("H:|-8-[v0]-8-|", views: labelLink)
@@ -292,20 +314,23 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         return  btn
     }
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        //if let count = appCategory?.apps?.count {
-         //   return count
-        //}
-        return 3
+        if let count = post?.comments.count {
+            return count
+        }
+        return 0
     }
+    
     func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
-        //super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+        //.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
         appsCollectionView.collectionViewLayout.invalidateLayout()
+        print("trans")
     }
-  
+
 
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("commentid", forIndexPath: indexPath) as! CommentCell
-        cell.comment = comments[indexPath.row]
+       
+        cell.comment = post?.comments[indexPath.row]
         return cell
     }
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
@@ -317,7 +342,8 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         return CGSizeMake(view.frame.width, rect.height + knownHeiht + 16)
         }
         */
-        return CGSizeMake(self.frame.width-16, 50)
+        print("size:\(UIScreen.mainScreen().bounds.width)")
+        return CGSizeMake(UIScreen.mainScreen().bounds.width-16, 50)
     }
    
     
@@ -367,25 +393,4 @@ class CommentCell: UICollectionViewCell {
         addConstraintsWithFormat("H:|-5-[v0]", views: byLabel)
         addConstraintsWithFormat("V:|[v0(40)]-5-[v1]", views: labelComment,byLabel)
     }
-}
-extension UIColor {
-    
-    static func rgb(red: CGFloat, green: CGFloat, blue: CGFloat) ->UIColor {
-        
-        return UIColor(red: red/255, green: green/255, blue: blue/255, alpha: 1)
-    }
-}
-extension UIView{
-    
-    func addConstraintsWithFormat(format: String, views: UIView...) {
-        var viewsDictionary = [String: UIView]()
-        for (index, view) in views.enumerate() {
-            let key = "v\(index)"
-            viewsDictionary[key] = view
-            view.translatesAutoresizingMaskIntoConstraints = false
-        }
-        
-        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(format, options: NSLayoutFormatOptions(), metrics: nil, views: viewsDictionary))
-    }
-    
 }
