@@ -26,5 +26,14 @@ extension UIView{
         
         addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(format, options: NSLayoutFormatOptions(), metrics: nil, views: viewsDictionary))
     }
+   
     
+}
+extension String{
+    func calculateHeight(fnt: UIFont) -> CGFloat {
+        //print(self)
+        let rect = NSString(string: self).boundingRectWithSize(CGSize(width:UIScreen.mainScreen().bounds.width, height: 1000), options: NSStringDrawingOptions.UsesFontLeading.union(NSStringDrawingOptions.UsesLineFragmentOrigin), attributes: [NSFontAttributeName:  fnt], context: nil)
+        //print("\(rect.height)--\(self)")
+        return rect.height
+    }
 }

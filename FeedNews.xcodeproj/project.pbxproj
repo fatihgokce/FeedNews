@@ -15,6 +15,7 @@
 		3DEDA6151CD2454900F661D8 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 3DEDA6141CD2454900F661D8 /* .gitignore */; };
 		3DEDA6171CD24D0800F661D8 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DEDA6161CD24D0800F661D8 /* Extensions.swift */; };
 		3DEDA6191CD24D6500F661D8 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DEDA6181CD24D6500F661D8 /* Models.swift */; };
+		3DEDA61B1CD2875400F661D8 /* news.json in Resources */ = {isa = PBXBuildFile; fileRef = 3DEDA61A1CD2875400F661D8 /* news.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 		3DEDA6141CD2454900F661D8 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		3DEDA6161CD24D0800F661D8 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		3DEDA6181CD24D6500F661D8 /* Models.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		3DEDA61A1CD2875400F661D8 /* news.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = news.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 				3D955CF01CD12BE600701124 /* LaunchScreen.storyboard */,
 				3D955CF31CD12BE600701124 /* Info.plist */,
 				3D955CF91CD1498700701124 /* Assets.xcassets */,
+				3DEDA61A1CD2875400F661D8 /* news.json */,
 				3D955CEB1CD12BE600701124 /* FeedNews.xcdatamodeld */,
 				3DEDA6161CD24D0800F661D8 /* Extensions.swift */,
 				3DEDA6181CD24D6500F661D8 /* Models.swift */,
@@ -133,6 +136,7 @@
 			files = (
 				3D955CFA1CD1498700701124 /* Assets.xcassets in Resources */,
 				3DEDA6151CD2454900F661D8 /* .gitignore in Resources */,
+				3DEDA61B1CD2875400F661D8 /* news.json in Resources */,
 				3D955CF21CD12BE600701124 /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

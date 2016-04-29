@@ -9,22 +9,28 @@
 import UIKit
 let cellId="cellId"
 let commentCellId="CommentcellId"
+let MAX_COMMENTS_HEIGT :Int = 200
 
 class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
     var posts = [Post]()
+    let headerCell = "headerCellid"
+    var indicator: UIActivityIndicatorView!
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+     
         initPost()
-        
-        
+        indicator = UIActivityIndicatorView()
+        view.addSubview(indicator)
         collectionView?.backgroundColor = UIColor.rgb(242, green: 242, blue: 242)
         navigationItem.title = "New Feed"
         collectionView?.alwaysBounceVertical = true
         collectionView?.registerClass(FeedCell.self, forCellWithReuseIdentifier: cellId)
+        collectionView?.registerClass(HeaderCell.self , forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: headerCell)
     }
 
     func initPost(){
+        /*
         let post1 = Post()
         post1.title = "Demokrasi Paketi Açıklandı"
         post1.newName = "habertürk"
@@ -35,6 +41,45 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
         post2.link = "http://www.hurriyet.com.tr/bursadaki-patlama-sonrasinda-ilk-supheli-o-orgut-40095672"
         posts.append(post1)
         posts.append(post2)
+        */
+        
+        let filePath = NSBundle.mainBundle().pathForResource("news",ofType:"json")
+        if let data = NSData(contentsOfFile: filePath!){
+            //let stringData = NSString(data: data, encoding: NSUTF8StringEncoding)
+            do{
+              
+                let json = try NSJSONSerialization.JSONObjectWithData(data, options:[]) as! NSDictionary//try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
+                
+                if let psts = json["posts"] as? [[String: AnyObject]] {
+                    for pst in psts {
+                        if let title = pst["title"] as? String {
+                            let post1 = Post()
+                            post1.title = title
+                            post1.sourceName = pst["sourceName"] as? String
+                            post1.link = pst["link"] as? String
+                            post1.cntHapy = pst["hapy_count"] as? Int
+                            post1.cntNrm = pst["nrm_count"] as? Int
+                            post1.cntUnHapy = pst["unhapy_count"] as? Int
+                            for cmt in (pst["comments"] as? [[String:AnyObject]])!{
+                            
+                                let comment1 = Comment()
+                                comment1.cmTitle = cmt["userComment"] as? String
+                                comment1.userName = cmt["userName"] as? String
+                                post1.comments.append(comment1)
+                            }
+                            posts.append(post1)
+                        }
+                    }
+                }
+                
+              
+ 
+                
+            }catch let err{
+              print(err)
+            }
+            
+        }
     }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -46,7 +91,6 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
     override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let fc = collectionView.dequeueReusableCellWithReuseIdentifier(cellId, forIndexPath: indexPath) as! FeedCell
         fc.post = posts[indexPath.row]
-        
         return fc
     }
     
@@ -59,7 +103,25 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
             return CGSizeMake(view.frame.width, rect.height + knownHeiht + 16)
         }
 */
-        return CGSizeMake(view.frame.width, 370)
+       /*
+        title:UIFont.boldSystemFontOfSize(14)
+        
+        newName:UIFont.systemFontOfSize(12)
+        link:UIFont.boldSystemFontOfSize(13)
+        */
+        var height:CGFloat = 300
+        let kh:CGFloat = 10 + 40 + 6 + 8 + 32 + 10
+        if let title = posts[indexPath.row].title {
+            height = 0
+            height = height + title.calculateHeight(UIFont.boldSystemFontOfSize(14)) + (posts[indexPath.row].sourceName?.calculateHeight(UIFont.systemFontOfSize(12)))!               + (posts[indexPath.row].link?.calculateHeight(UIFont.boldSystemFontOfSize(13)))!
+            for cm1 in posts[indexPath.row].comments {
+            
+                height = height  + 5 + (cm1.cmTitle?.calculateHeight(UIFont.systemFontOfSize(13)))! + (cm1.userName?.calculateHeight(UIFont.systemFontOfSize(12)))!
+                
+            }
+        }
+        
+        return CGSizeMake(view.frame.width,320)
     }
 
     override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
@@ -67,57 +129,79 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
         for cell in collectionView!.visibleCells() {
             
             if let fc = cell as? FeedCell {
-                //print("hello")
-                //fc.appsCollectionView.sizeToFit()
                 fc.appsCollectionView.collectionViewLayout.invalidateLayout()
             }
         }
         collectionView?.collectionViewLayout.invalidateLayout()
     }
+    override func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
+        let header = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: headerCell, forIndexPath: indexPath) as? HeaderCell
+        header?.viewController = self
+        return header!
+    }
+    func collectionView(collectionView: UICollectionView, layout collectionViewLayout : UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSizeMake(view.frame.width, 40)
+    }
+    func changeCategory(categoryName:String){
+        print(categoryName)
+        posts.removeAll()
+        collectionView?.reloadData()
+        indicator.center = self.view.center
+        indicator.hidden = false
+        indicator.startAnimating()
+        let seconds = 4.0
+        let delay = seconds * Double(NSEC_PER_SEC)  // nanoseconds per seconds
+        let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
+        
+        dispatch_after(dispatchTime, dispatch_get_main_queue(), {
+            self.indicator.stopAnimating()
+            self.indicator.hidden = true
+            self.initPost()
+            self.collectionView?.reloadData()
+            // here code perfomed with delay
+            
+        })
+        
+    }
 
-
+}
+class HeaderCell : UICollectionViewCell {
+    var viewController: FeedController?
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupViews()
+    }
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("ddd")
+    }
+    let segmentedControl: UISegmentedControl = {
+        let sc = UISegmentedControl(items: ["Gündem", "Popüler", "Spor"])
+        sc.tintColor = UIColor(red: 28/255, green: 164/255, blue: 179/255, alpha: 1)
+        sc.selectedSegmentIndex = 0
+        return sc
+    }()
+    func setupViews(){
+    
+        addSubview(segmentedControl)
+        segmentedControl.addTarget(self, action: Selector("indexChanged:"), forControlEvents: .ValueChanged)
+        addConstraintsWithFormat("H:|-8-[v0]-8-|", views: segmentedControl)
+        addConstraintsWithFormat("V:|-8-[v0]-8-|", views: segmentedControl)
+    }
+    func indexChanged(sender: UISegmentedControl){
+    
+        viewController?.changeCategory( segmentedControl.titleForSegmentAtIndex(segmentedControl.selectedSegmentIndex)!)
+    }
 }
 class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionViewDelegate , UICollectionViewDelegateFlowLayout
 {
-    //var comments = [Comment]()
+
     var post: Post?{
         didSet{
-            if let name = post?.title, let newName = post?.newName
+            if let name = post?.title, let newName = post?.sourceName
             {
-                //appsCollectionView.registerClass(CommentCell.self, forCellWithReuseIdentifier: "hhh")
-
-                let att = NSMutableAttributedString(string: name, attributes: [ NSFontAttributeName: UIFont.boldSystemFontOfSize(14)])
-                
-                att.appendAttributedString(NSAttributedString(string: "\n by \(newName)",
-                    attributes: [NSFontAttributeName:UIFont.systemFontOfSize(12),
-                        NSForegroundColorAttributeName: UIColor(red: 155/255, green: 161/255, blue: 172/255, alpha: 1)]))
-                
-                let ps = NSMutableParagraphStyle()
-                ps.lineSpacing = 4
-                att.addAttribute(NSParagraphStyleAttributeName, value: ps, range: NSMakeRange(0, att.string.characters.count))
-                
-                let attament = NSTextAttachment()
-                attament.image = UIImage(named: "gs")
-                attament.bounds = CGRectMake(0,-2,12,12)
-                att.appendAttributedString(NSAttributedString(attachment: attament))
-                
-                
-                
-                labelTitle.attributedText = att
-                let cmt1 = Comment()
-                cmt1.cmTitle = " My setup is that I have this collectionview inside a custom tableview cell and I do return the height of my tableview cell programatically (depending on the content). So it could be that my warnings had to do with my collectionview not fitting inside the tableview cell. So setting the initial collectionview to a smaller value fixed it."
-                cmt1.userName = "M.y"
-                post?.comments.append(cmt1)
-                let cmt2 = Comment()
-                cmt2.cmTitle = "actually did the trick. it also resolved my issue in swift, where the cells of a horizontal flow layout had a frame top of -32 (???) and did not fit into the collection view properly."
-                cmt2.userName = "fatih"
-                post?.comments.append(cmt2)
-                
-                let cmt3 = Comment()
-                cmt3.cmTitle = "actually did the trick. it also resolved my issue in swift, where the cells of a horizontal flow layout had a frame top of -32 (???) and did not fit into the collection view properly."
-                cmt3.userName = "fatih"
-                post?.comments.append(cmt3)
-                           }
+              labelTitle.text = name
+                labelSourceName.text = newName
+            }
             if let link = post?.link {
             
                 labelLink.text = link
@@ -145,8 +229,18 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
     let labelTitle :UILabel = {
     
         let label = UILabel()
-        //label.text="Sample name"
+        label.text="Sample name"
+        label.textColor = UIColor.rgb(34, green: 34, blue: 34)
+        label.lineBreakMode = .ByWordWrapping
         label.numberOfLines = 2
+        label.font = UIFont.boldSystemFontOfSize(13)
+        return label
+    }()
+    let labelSourceName :UILabel = {
+        let label = UILabel()
+        //label.text="Sample name"
+        label.font = UIFont.systemFontOfSize(12)
+        label.textColor = UIColor(red: 155/255, green: 161/255, blue: 172/255, alpha: 1)
         return label
     }()
     let labelLink :UILabel = {
@@ -156,6 +250,7 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         label.textColor = UIColor.rgb(102, green: 152, blue: 187)
         label.lineBreakMode = .ByWordWrapping
         label.numberOfLines = 2
+        label.font = UIFont.boldSystemFontOfSize(13)
         return label
     }()
     let btnHapy = FeedCell.buttonForTitle("654", imageName: "emo1")
@@ -194,9 +289,10 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         tf.placeholder = "Add your comment"
         tf.textColor = UIColor.rgb(185, green: 181, blue: 181)
         //tf.backgroundColor = UIColor.greenColor()
-        tf.layer.borderColor =  UIColor.rgb(101, green: 99, blue: 99).CGColor
-        tf.layer.borderWidth = 1
+        tf.layer.borderColor =  UIColor.grayColor().CGColor
+        tf.layer.borderWidth = 0.7
         tf.layer.cornerRadius = 16.0
+        tf.layer.masksToBounds = true
         tf.textAlignment = .Justified
         return tf
     }()
@@ -208,6 +304,7 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         btn.backgroundColor = UIColor(red: 7/255, green: 117/255, blue: 160/255, alpha: 1)
         //btn.setImage(UIImage(named: imageName), forState: .Normal)
         btn.layer.cornerRadius = 16
+        btn.layer.masksToBounds = true
         btn.titleEdgeInsets = UIEdgeInsets(top: 0,left: 0,bottom: 0,right: -10)
         btn.titleLabel?.font = UIFont.boldSystemFontOfSize(14)
         
@@ -233,19 +330,19 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         {
             let comment = Comment()
             comment.cmTitle = cmt
-            comment.userName = "Name :\(cmt)"
+            comment.userName = "Fatih"
             post?.comments.insert(comment, atIndex: 0)
             appsCollectionView.reloadData()
             let indexPath = NSIndexPath(forItem: 0, inSection: 0)
             appsCollectionView.selectItemAtIndexPath(indexPath, animated: true, scrollPosition: .Left)
             //let newIndexPath = NSIndexPath(forRow: post!.comments.count, inSection: 0)
-
-            //meals.append(meal)
             //appsCollectionView.insertItemsAtIndexPaths([newIndexPath]
-            
-            
-            
-        }else{
+            //self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y,UIScreen.mainScreen().bounds.width, 340)
+            //mainColectionView!.frame = CGRectMake(mainColectionView!.frame.origin.x, mainColectionView!.frame.origin.y,UIScreen.mainScreen().bounds.width, 350)
+    
+        }
+        else
+        {
         
             print("mesaj gelecek ")
         }
@@ -266,6 +363,7 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         btnHapy.addTarget(self, action: Selector("btnTouchHapy:"), forControlEvents: .TouchDown)
         btnSend.addTarget(self, action: Selector("btnSendCommentTouch:"), forControlEvents: .TouchDown)
         addSubview(labelTitle)
+        addSubview(labelSourceName)
         addSubview(labelLink)
         addSubview(btnHapy)
         addSubview(btnNrm)
@@ -275,29 +373,37 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         addSubview(btnSend)
         addSubview(btnTwitter)
         addSubview(btnFacebook)
-        
+      
         
         
      
         //button.addTarget(self, action:Selector("ratingButtonTapped:"), forControlEvents: .TouchDown)
         //let horizontalConstraintsRedBlue = NSLayoutConstraint.constraintsWithVisualFormat("H:|-spacing-[red(>=lowWidth,<=highWidth@priority)]-redBlueSpacing-[blue(==red)]-spacing-|", options: NSLayoutFormatOptions(), metrics: metrics, views: views)
         addConstraintsWithFormat("H:|-8-[v0]-8-|", views: labelTitle)
+        addConstraintsWithFormat("H:|-8-[v0]-8-|", views: labelSourceName)
         addConstraintsWithFormat("H:|-8-[v0]-8-|", views: labelLink)
         addConstraintsWithFormat("H:|-8-[v0(v2)][v1(v2)][v2(>=95,<=140)]", views: btnHapy,btnNrm,btnUnHapy)
         addConstraintsWithFormat("H:|-8-[v0]-8-|", views: appsCollectionView)
         addConstraintsWithFormat("H:|-8-[v0(>=100)]-8-[v1(<=60)]-8-|", views: txtComment,btnSend)
         addConstraintsWithFormat("H:|-8-[v0]-12-[v1]", views: btnTwitter,btnFacebook)
         
-        addConstraintsWithFormat("V:|-8-[v0][v1]", views: labelTitle,labelLink)
+   
+        //addConstraint(NSLayoutConstraint(item: labelTitle, attribute: .Top,
+         //   relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1.0, constant: 1.0))
+        
+        addConstraintsWithFormat("V:|-1-[v0][v1]", views: labelTitle,labelSourceName)
+        //addConstraintsWithFormat("V:[v0(30)]-[v1]", views: labelTitle,labelSourceName)
+        addConstraintsWithFormat("V:[v0][v1]", views: labelSourceName,labelLink)
         addConstraintsWithFormat("V:[v0]-10-[v1]", views: labelLink,btnHapy)
         addConstraintsWithFormat("V:[v0]-10-[v1]", views: labelLink,btnNrm)
         addConstraintsWithFormat("V:[v0]-10-[v1]", views: labelLink,btnUnHapy)
-        addConstraintsWithFormat("V:[v0]-10-[v1(150)]", views: btnUnHapy,appsCollectionView)
+        addConstraintsWithFormat("V:[v0]-10-[v1]", views: btnUnHapy,appsCollectionView)
         addConstraintsWithFormat("V:[v0]-6-[v1]", views: appsCollectionView,btnTwitter)
-        addConstraintsWithFormat("V:[v0]-6-[v1]", views: appsCollectionView,btnFacebook)
-        addConstraintsWithFormat("V:[v0]-8-[v1(32)]", views: btnTwitter,txtComment)
-        addConstraintsWithFormat("V:[v0]-8-[v1(32)]", views: btnTwitter,btnSend)
-
+       
+        addConstraintsWithFormat("V:[v0(32)]-3-|", views: txtComment)
+        addConstraintsWithFormat("V:[v0(32)]-3-|", views:btnSend)
+        addConstraintsWithFormat("V:[v0]-8-[v1]", views: btnTwitter,txtComment)
+        addConstraintsWithFormat("V:[v0]-8-[v1]", views: btnFacebook,txtComment)
 
     }
     
@@ -314,25 +420,25 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         return  btn
     }
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        print("number item")
         if let count = post?.comments.count {
             return count
         }
+        
         return 0
     }
-    
-    func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
-        //.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
-        appsCollectionView.collectionViewLayout.invalidateLayout()
-        print("trans")
-    }
-
 
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("commentid", forIndexPath: indexPath) as! CommentCell
-       
         cell.comment = post?.comments[indexPath.row]
+        
+        if totalHeigt < 200 {
+            //appsCollectionView.frame = CGRectMake(appsCollectionView.frame.origin.x, appsCollectionView.frame.origin.y,UIScreen.mainScreen().bounds.width, totalHeigt)
+            
+        }
         return cell
     }
+    var totalHeigt:CGFloat = 0
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
         /*
         if let statusText = posts[indexPath.row].statusText
@@ -342,10 +448,25 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         return CGSizeMake(view.frame.width, rect.height + knownHeiht + 16)
         }
         */
-        print("size:\(UIScreen.mainScreen().bounds.width)")
-        return CGSizeMake(UIScreen.mainScreen().bounds.width-16, 50)
+        var height:CGFloat = 5
+        let kh:CGFloat =  5
+        if let title = post?.comments[indexPath.row].cmTitle {
+            
+            height =  (post?.comments[indexPath.row].userName?.calculateHeight(UIFont.systemFontOfSize(12)))! + (post?.comments[indexPath.row].cmTitle?.calculateHeight(UIFont.systemFontOfSize(13)))!
+            if height > 50
+            {
+                height = 40
+            }
+        }
+        print("cah:\(height + kh)")
+        height = height + kh
+        totalHeigt += height
+       
+            //addConstraintsWithFormat("H:|-8-[v0]-8-|", views: appsCollectionView)
+        //addConstraintsWithFormat("V:[v0]-10-[v1(>=" + String(height)  + ")]", views: btnUnHapy,appsCollectionView)
+        return CGSizeMake(UIScreen.mainScreen().bounds.width - 16, height)
     }
-   
+    
     
 }
 class CommentCell: UICollectionViewCell {
@@ -366,7 +487,7 @@ class CommentCell: UICollectionViewCell {
     required init?(coder aDecoder: NSCoder) {
         fatalError("ddd")
     }
-    let byLabel : UILabel = {
+    var byLabel : UILabel = {
     
         let lb = UILabel()
         lb.textColor = UIColor(red: 155/255, green: 161/255, blue: 172/255, alpha: 1)
@@ -375,7 +496,7 @@ class CommentCell: UICollectionViewCell {
         lb.translatesAutoresizingMaskIntoConstraints = false
         return lb
     }()
-    let labelComment :UILabel = {
+    var labelComment :UILabel = {
         
         let label = UILabel()
         label.text="Sample name"
@@ -391,6 +512,6 @@ class CommentCell: UICollectionViewCell {
         
         addConstraintsWithFormat("H:|-0-[v0]-0-|", views: labelComment)
         addConstraintsWithFormat("H:|-5-[v0]", views: byLabel)
-        addConstraintsWithFormat("V:|[v0(40)]-5-[v1]", views: labelComment,byLabel)
+        addConstraintsWithFormat("V:|[v0(>=20,<=40)]-5-[v1]", views: labelComment,byLabel)
     }
 }

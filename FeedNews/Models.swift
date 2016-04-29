@@ -9,7 +9,7 @@
 import Foundation
 class Post {
     var title : String?
-    var newName: String?
+    var sourceName: String?
     var link: String?
     var cntHapy: Int?
     var cntNrm: Int?

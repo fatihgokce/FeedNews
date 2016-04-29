@@ -1,0 +1,45 @@
+{
+"posts":
+[
+ 
+    {
+    "title":"Vize muafiyeti için ‘el freni’ önerisine AB Komisyonu’ndan ret",
+    "sourceName":"habertürk",
+        "link":"http://interactivelogic.net/wp/2015/01/how-to-read-a-json-file-from-your-bundle-and-output-the-contents-as-a-string-in-swift",
+        "hapy_count":"21",
+        "nrm_count":"0",
+        "unhapy_count":"12",
+ "comments":[
+             {
+             "userComment":"My setup is that I have this collectionview inside a custom tableview cell and I do return the height of my tableview cell programatically (depending on the content). So it could be that my warnings had to do with my collectionview not fitting inside the tableview cell. So setting the initial collectionview to a smaller value fixed it ",
+             "userName":"hasan"
+             },
+             {
+             "userComment":"Norveç gazetesi Verdens Gang'a konuşan Rebecca Andersen adlı bir görgü tanığı, helikopterin pervaneleri koptu ve üzerimize doğru gelmeye başladı. Ardından da çok güçlü bir patlama duyduk dedi. My setup is that I have this collectionview inside a custom tableview cell and I do return the height of my tableview cell programatically (depending on the content). So it could be that my warnings had to do with my collectionview not fitting inside the tableview cell. So setting the initial collectionview to a smaller value fixed it ",
+             "userName":"uygar"
+             }
+             ]
+ 
+    },
+ 
+    {
+        "title":"How to read a JSON file from your bundle and output the contents as a String in Swift",
+        "sourceName":"hurriyet",
+        "link":"http://interactivelogic.net/wp/2015/01/how-to-read-a-json-file-from-your-bundle-and-output-the-contents-as-a-string-in-swift/",
+        "hapy_count":"21",
+        "nrm_count":"0",
+        "unhapy_count":"12",
+        "comments":[
+                    {
+                    "userComment":"My setup is that I have this collectionview inside a custom tableview cell and I do return the height of my tableview cell programatically (depending on the content). So it could be that my warnings had to do with my collectionview not fitting inside the tableview cell. So setting the initial collectionview to a smaller value fixed it ",
+                    "userName":"hasan"
+                    },
+                    {
+                    "userComment":"Norveç gazetesi Verdens Gang'a konuşan Rebecca Andersen adlı bir görgü tanığı, helikopterin pervaneleri koptu ve üzerimize doğru gelmeye başladı. Ardından da çok güçlü bir patlama duyduk dedi. My setup is that I have this collectionview inside a custom tableview cell and I do return the height of my tableview cell programatically (depending on the content). So it could be that my warnings had to do with my collectionview not fitting inside the tableview cell. So setting the initial collectionview to a smaller value fixed it ",
+                    "userName":"uygar"
+                    }
+                    ]
+        
+    }
+]
+}
