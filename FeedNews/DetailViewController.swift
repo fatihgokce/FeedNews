@@ -74,7 +74,7 @@ class DetailViewController: UIViewController {
  
     func getData(){
     
-        let url = NSURL(string: "http://198.38.92.235:8081/getData?url=http://www.hurriyet.com.tr/davutoglundan-gaziantep-saldirisi-aciklamasi-40097511")
+        let url = NSURL(string: "http://198.38.92.235:8081/getData?url=" + post!.link!)
         //let url = "http://198.38.92.235:8081/getData?url=http://www.hurriyet.com.tr/real-betis-0-2-barcelona-40097396"
         let task = NSURLSession.sharedSession().dataTaskWithURL(url!)
             {
@@ -82,10 +82,10 @@ class DetailViewController: UIViewController {
                 
                 do {
                     //NSJSONReadingOptions.MutableContainers
-                    var buffer = [UInt8](count:data!.length, repeatedValue:0)
-                    data!.getBytes(&buffer, length:data!.length)
-                    var datastring = String(bytes:buffer, encoding:NSUTF8StringEncoding)
-                    print(datastring)
+                    //var buffer = [UInt8](count:data!.length, repeatedValue:0)
+                    //data!.getBytes(&buffer, length:data!.length)
+                    //var datastring = String(bytes:buffer, encoding:NSUTF8StringEncoding)
+                    //print(datastring)
                     
                     let  sjson = NSString(data: data!, encoding: NSUTF8StringEncoding) as! String
                     let jdata = sjson.dataUsingEncoding(NSUTF8StringEncoding)
@@ -96,8 +96,7 @@ class DetailViewController: UIViewController {
                         dispatch_async(dispatch_get_main_queue(), {
                             
                         
-                            let d = pr.dataUsingEncoding(NSUnicodeStringEncoding)!
-                            let options = [NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType]
+                         
                             let url2 = NSURL(string: img)
                             NSURLSession.sharedSession().dataTaskWithURL(url2!)
                                 {
@@ -112,12 +111,10 @@ class DetailViewController: UIViewController {
                                 }.resume()
                             do
                             {
-                                let html = try ( NSAttributedString(data: d, options: options, documentAttributes: nil) )
-                                //self.lb1.text = img
-                                //self.textV.attributedText = html
-                                var str  = " Cumhurbaşkanı Erdoğan, amfibi hücum gemisi 'Anadolu'nun inşa başlangıç töreninde konuştu. Erdoğan, 5.5 yıl olan teslim süresini 4 yıla çekilmesini istedi."
-                                str += "\n Cumhurbaşkanı Recep Tayyip Erdoğan, amfibi hücum gemisi 'Anadolu' inşa başlangıç töreninde konuştu. Erdoğan, projenin öneminden bahsederken 5.5 yıl olan teslim süresinin 4 yıla inmesi gerektiğini belirterek, şirket sahibi Nevzat Kalkavan'a, 'Nevzat bey, bu 5.5 yıl olmaz. 4 yıl olsun.\n Bakın Genelkurmay Başkanım 3 diyor, bunu 4'e çektiğimiz zamandan itibaren yeni siparişler geleceği gibi, bizim de yeni siparişlerimiz olacak. 4 bizde çok önemli. Biliyorsunuz?' dedi. Kalkavan, Erdoğan'ın sözleri üzerine  amfibi hücum gemisi 'Anadolu'yu 4 yılda bitirmeyi taahhüt etti."
-                                self.textV.text = pr.replace("##", withString:"\"")
+                                let style = NSMutableParagraphStyle()
+                                style.lineSpacing = 5
+                                let attributes = [ NSParagraphStyleAttributeName : style ]
+                                self.textV.attributedText = NSAttributedString(string: pr.replace("##", withString:"\""), attributes: attributes)
                                 
                             
                             }catch let err {
