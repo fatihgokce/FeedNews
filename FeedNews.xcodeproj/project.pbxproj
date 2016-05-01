@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3D3260A71CD50E6B005847D3 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D3260A61CD50E6B005847D3 /* DetailViewController.swift */; };
 		3D955CE51CD12BE600701124 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D955CE41CD12BE600701124 /* AppDelegate.swift */; };
 		3D955CE71CD12BE600701124 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D955CE61CD12BE600701124 /* ViewController.swift */; };
 		3D955CED1CD12BE600701124 /* FeedNews.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3D955CEB1CD12BE600701124 /* FeedNews.xcdatamodeld */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3D3260A61CD50E6B005847D3 /* DetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
 		3D955CE11CD12BE600701124 /* FeedNews.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FeedNews.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D955CE41CD12BE600701124 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3D955CE61CD12BE600701124 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -65,6 +67,7 @@
 			children = (
 				3D955CE41CD12BE600701124 /* AppDelegate.swift */,
 				3D955CE61CD12BE600701124 /* ViewController.swift */,
+				3D3260A61CD50E6B005847D3 /* DetailViewController.swift */,
 				3D955CF01CD12BE600701124 /* LaunchScreen.storyboard */,
 				3D955CF31CD12BE600701124 /* Info.plist */,
 				3D955CF91CD1498700701124 /* Assets.xcassets */,
@@ -151,6 +154,7 @@
 				3D955CE71CD12BE600701124 /* ViewController.swift in Sources */,
 				3D955CED1CD12BE600701124 /* FeedNews.xcdatamodeld in Sources */,
 				3D955CE51CD12BE600701124 /* AppDelegate.swift in Sources */,
+				3D3260A71CD50E6B005847D3 /* DetailViewController.swift in Sources */,
 				3DEDA6171CD24D0800F661D8 /* Extensions.swift in Sources */,
 				3DEDA6191CD24D6500F661D8 /* Models.swift in Sources */,
 			);

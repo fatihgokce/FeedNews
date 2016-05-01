@@ -36,4 +36,8 @@ extension String{
         //print("\(rect.height)--\(self)")
         return rect.height
     }
+    func replace(target: String, withString: String) -> String
+    {
+        return self.stringByReplacingOccurrencesOfString(target, withString: withString, options: NSStringCompareOptions.LiteralSearch, range: nil)
+    }
 }

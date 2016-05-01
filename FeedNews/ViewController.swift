@@ -14,14 +14,14 @@ let MAX_COMMENTS_HEIGT :Int = 200
 class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
     var posts = [Post]()
     let headerCell = "headerCellid"
-    var indicator: UIActivityIndicatorView!
-    override func viewDidLoad() {
+        override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
      
         initPost()
-        indicator = UIActivityIndicatorView()
-        view.addSubview(indicator)
+       
+        //UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+        //view.addSubview(indicator)
         collectionView?.backgroundColor = UIColor.rgb(242, green: 242, blue: 242)
         navigationItem.title = "New Feed"
         collectionView?.alwaysBounceVertical = true
@@ -142,23 +142,37 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout : UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         return CGSizeMake(view.frame.width, 40)
     }
+    override func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+        let cv = DetailViewController()
+        cv.post = posts[indexPath.row]
+        navigationController?.pushViewController(cv, animated: true)
+    }
+    
     func changeCategory(categoryName:String){
         print(categoryName)
         posts.removeAll()
         collectionView?.reloadData()
-        indicator.center = self.view.center
-        indicator.hidden = false
+        let indicator = UIActivityIndicatorView(frame: CGRect(x: 5, y: 5, width: 50, height: 50))
+        indicator.hidesWhenStopped = true
+        indicator.activityIndicatorViewStyle = .Gray
+        indicator.drawRect(CGRect(x: 0, y: 0, width: 100, height: 100))
         indicator.startAnimating()
+        
+        let alert = UIAlertController(title: "", message: "Loading Please Wait", preferredStyle: UIAlertControllerStyle.Alert)
+        //indicator.center = alert.view.center
+        alert.view.addSubview(indicator)
+        presentViewController(alert, animated: true, completion: nil)
         let seconds = 4.0
+
         let delay = seconds * Double(NSEC_PER_SEC)  // nanoseconds per seconds
         let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
         
         dispatch_after(dispatchTime, dispatch_get_main_queue(), {
-            self.indicator.stopAnimating()
-            self.indicator.hidden = true
+           
             self.initPost()
             self.collectionView?.reloadData()
             // here code perfomed with delay
+            self.dismissViewControllerAnimated(false, completion: nil)
             
         })
         
