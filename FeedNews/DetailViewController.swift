@@ -18,6 +18,7 @@ class DetailViewController: UIViewController {
           navigationItem.title = title
         }
         navigationController?.navigationBar.tintColor = UIColor.whiteColor()
+        
         setupViews()
         
         // Do any additional setup after loading the view.
@@ -40,7 +41,7 @@ class DetailViewController: UIViewController {
     
         let tv = UITextView()
         tv.font = UIFont(name: "HelveticaNeue", size: 14) //systemFontOfSize(14)
-        tv.scrollEnabled = true
+        tv.scrollEnabled = false
         tv.backgroundColor = UIColor.clearColor()
         tv.textColor = UIColor.rgb(59, green: 60, blue: 63)
         //tv.textAlignment = .Justified
@@ -48,27 +49,46 @@ class DetailViewController: UIViewController {
     }()
     let scrolView : UIScrollView = {
         let sv = UIScrollView()
-        sv.contentSize.height = 1000
+        //sv.contentSize.height = 1000
+        sv.translatesAutoresizingMaskIntoConstraints = false
+        //sv.scrollEnabled = true
+        return sv
+    }()
+    let contentView : UIView = {
+        let sv = UIView()
+        
+        return sv
+    }()
+    let btn : UIButton = {
+        let sv = UIButton()
+        sv.backgroundColor = UIColor.greenColor()
+        sv.titleLabel?.text = "dfvdfvdfv"
         return sv
     }()
     func setupViews(){
-      
-        //self.view.addSubview(scrolView)
-        self.view.addSubview(imageView)
-        self.view.addSubview(textV)
+        scrolView.contentSize = CGSizeMake(400, 2300)
+        self.view.addSubview(scrolView)
+        self.scrolView.addSubview(contentView)
+        self.contentView.addSubview(imageView)
+        self.contentView.addSubview(textV)
+        self.contentView.addSubview(btn)
         addConstraint()
         getData()
-        var str  = " Cumhurbaşkanı Erdoğan, amfibi hücum gemisi 'Anadolu'nun inşa başlangıç töreninde konuştu. Erdoğan, 5.5 yıl olan teslim süresini 4 yıla çekilmesini istedi."
-        str += "\n Cumhurbaşkanı Recep Tayyip Erdoğan, amfibi hücum gemisi 'Anadolu' inşa başlangıç töreninde konuştu. Erdoğan, projenin öneminden bahsederken 5.5 yıl olan teslim süresinin 4 yıla inmesi gerektiğini belirterek, şirket sahibi Nevzat Kalkavan'a, 'Nevzat bey, bu 5.5 yıl olmaz. 4 yıl olsun.\n Bakın Genelkurmay Başkanım 3 diyor, bunu 4'e çektiğimiz zamandan itibaren yeni siparişler geleceği gibi, bizim de yeni siparişlerimiz olacak. 4 bizde çok önemli. Biliyorsunuz?' dedi. Kalkavan, Erdoğan'ın sözleri üzerine  amfibi hücum gemisi 'Anadolu'yu 4 yılda bitirmeyi taahhüt etti."
-        //self.textV.text = str
+      
     }
     func addConstraint(){
-        //self.view.addConstraintsWithFormat("H:|[v0]|", views: scrolView)
+        self.view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|-0-[v0]-0-|", options: NSLayoutFormatOptions(), metrics: nil, views: ["v0":scrolView]))
+        self.view.addConstraintsWithFormat("H:|-0-[v0]-0-|", views: contentView)
         self.view.addConstraintsWithFormat("H:|-8-[v0]-8-|", views: imageView)
         self.view.addConstraintsWithFormat("H:|-8-[v0]-8-|", views: textV)
+        self.view.addConstraintsWithFormat("H:|-8-[v0]-8-|", views: btn)
         //self.view.addConstraintsWithFormat("V:|[v0]|", views: scrolView)
-
-        self.view.addConstraintsWithFormat("V:|-80-[v0(150)][v1(>=500)]", views: imageView,textV)
+        self.view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-0-[v0]-0-|", options: NSLayoutFormatOptions(), metrics: nil, views: ["v0":scrolView]))
+       
+        self.view.addConstraint(NSLayoutConstraint(item: contentView, attribute: .Width , relatedBy: .Equal, toItem: self.view, attribute: .Width, multiplier: 1, constant: 0))
+        
+        self.view.addConstraintsWithFormat("V:|-0-[v0]-0-|", views: contentView)
+        self.view.addConstraintsWithFormat("V:|-5-[v0(150)][v1][v2(40)]", views: imageView,textV,btn)
         //self.view.addConstraintsWithFormat("V:[v0(80)][v1]", views: imageView,textV)
     }
  
@@ -111,11 +131,21 @@ class DetailViewController: UIViewController {
                                 }.resume()
                             do
                             {
+                                
                                 let style = NSMutableParagraphStyle()
                                 style.lineSpacing = 5
                                 let attributes = [ NSParagraphStyleAttributeName : style ]
                                 self.textV.attributedText = NSAttributedString(string: pr.replace("##", withString:"\""), attributes: attributes)
-                                
+                                //self.textV.translatesAutoresizingMaskIntoConstraints = false
+                                let fixedWidth = self.textV.frame.size.width
+                                self.textV.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.max))
+                                let newSize = self.textV.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.max))
+                                var newFrame = self.textV.frame
+                                newFrame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
+                                self.textV.frame = newFrame;
+                                self.scrolView.contentSize = CGSizeMake(self.view.frame.width, self.textV.frame.height + 150 + 10 )
+                                //self.view.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.textV.frame.height + 150 + 20)
+                                //self.view.reloadInputViews()
                             
                             }catch let err {
                                 // print("\(err)")
