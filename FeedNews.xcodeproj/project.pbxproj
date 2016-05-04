@@ -17,6 +17,7 @@
 		3DEDA6171CD24D0800F661D8 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DEDA6161CD24D0800F661D8 /* Extensions.swift */; };
 		3DEDA6191CD24D6500F661D8 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DEDA6181CD24D6500F661D8 /* Models.swift */; };
 		3DEDA61B1CD2875400F661D8 /* news.json in Resources */ = {isa = PBXBuildFile; fileRef = 3DEDA61A1CD2875400F661D8 /* news.json */; };
+		3DF05C5E1CD79D1F0005FB29 /* FeedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF05C5D1CD79D1F0005FB29 /* FeedCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		3DEDA6161CD24D0800F661D8 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		3DEDA6181CD24D6500F661D8 /* Models.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		3DEDA61A1CD2875400F661D8 /* news.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = news.json; sourceTree = "<group>"; };
+		3DF05C5D1CD79D1F0005FB29 /* FeedCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +69,7 @@
 			children = (
 				3D955CE41CD12BE600701124 /* AppDelegate.swift */,
 				3D955CE61CD12BE600701124 /* ViewController.swift */,
+				3DF05C5D1CD79D1F0005FB29 /* FeedCell.swift */,
 				3D3260A61CD50E6B005847D3 /* DetailViewController.swift */,
 				3D955CF01CD12BE600701124 /* LaunchScreen.storyboard */,
 				3D955CF31CD12BE600701124 /* Info.plist */,
@@ -151,6 +154,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3DF05C5E1CD79D1F0005FB29 /* FeedCell.swift in Sources */,
 				3D955CE71CD12BE600701124 /* ViewController.swift in Sources */,
 				3D955CED1CD12BE600701124 /* FeedNews.xcdatamodeld in Sources */,
 				3D955CE51CD12BE600701124 /* AppDelegate.swift in Sources */,
@@ -259,6 +263,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = FeedNews/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -271,6 +276,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = FeedNews/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
