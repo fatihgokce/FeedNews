@@ -8,9 +8,9 @@
 
 import UIKit
 import CoreData
-
+import Google
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate,GIDSignInDelegate {
 
     var window: UIWindow?
 
@@ -21,13 +21,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let fc = FeedController(collectionViewLayout: UICollectionViewFlowLayout())
         let nvc = UINavigationController(rootViewController: fc)
         UINavigationBar.appearance().barTintColor = UIColor(red: 28/255, green: 164/255, blue: 179/255, alpha: 1)
-        
+        nvc.navigationBar.tintColor = UIColor.whiteColor()
+        nvc.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .Plain, target: nil, action: nil)
         UINavigationBar.appearance().titleTextAttributes = [NSForegroundColorAttributeName : UIColor.whiteColor()]
         application.statusBarStyle = .LightContent
         window?.rootViewController = nvc
+        
+         FBSDKApplicationDelegate.sharedInstance().application(application, didFinishLaunchingWithOptions: launchOptions)
+        
+        var configureError: NSError?
+        GGLContext.sharedInstance().configureWithError(&configureError)
+        assert(configureError == nil, "Error configuring Google services: \(configureError)")
+        
+        GIDSignIn.sharedInstance().delegate = self
+    
         return true
     }
-
+    func signIn(signIn: GIDSignIn!, didSignInForUser user: GIDGoogleUser!, withError error: NSError!) {
+        print(user.profile.email)
+    }
+    func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool {
+        print(url.scheme)
+        if url.scheme == "fb1709393166005211" {
+        
+            return FBSDKApplicationDelegate.sharedInstance().application(application, openURL: url, sourceApplication: sourceApplication, annotation: annotation)
+        }else{
+            //var options: [String: AnyObject] = [UIApplicationOpenURLOptionsSourceApplicationKey: sourceApplication,
+            //                                    UIApplicationOpenURLOptionsAnnotationKey: annotation]
+            return GIDSignIn.sharedInstance().handleURL(url,
+                                                        sourceApplication: sourceApplication,
+                                                        annotation: annotation)        }
+    }
     func applicationWillResignActive(application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.

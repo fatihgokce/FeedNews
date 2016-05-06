@@ -7,9 +7,12 @@
 //
 
 import UIKit
+protocol  FeedCellDelegate {
+    func isLogin()
+}
 class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionViewDelegate , UICollectionViewDelegateFlowLayout
 {
-    
+    var delegate:FeedCellDelegate?
     var post: Post?{
         didSet{
             if let name = post?.title, let newName = post?.sourceName
@@ -106,9 +109,9 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         //tf.backgroundColor = UIColor.greenColor()
         tf.layer.borderColor =  UIColor.grayColor().CGColor
         tf.layer.borderWidth = 0.7
-        tf.layer.cornerRadius = 16.0
+        tf.layer.cornerRadius = 5.0
         tf.layer.masksToBounds = true
-        tf.textAlignment = .Justified
+        tf.textAlignment = .Center
         return tf
     }()
     let btnSend : UIButton = {
@@ -118,7 +121,7 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         btn.titleLabel?.textAlignment = .Right
         btn.backgroundColor = UIColor(red: 7/255, green: 117/255, blue: 160/255, alpha: 1)
         //btn.setImage(UIImage(named: imageName), forState: .Normal)
-        btn.layer.cornerRadius = 16
+        btn.layer.cornerRadius = 5
         btn.layer.masksToBounds = true
         btn.titleEdgeInsets = UIEdgeInsets(top: 0,left: 0,bottom: 0,right: -10)
         btn.titleLabel?.font = UIFont.boldSystemFontOfSize(14)
@@ -141,26 +144,27 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
     }
     func btnSendCommentTouch(sender: UIButton)
     {
+        if delegate != nil
+        {
         if let cmt = txtComment.text
         {
-            let comment = Comment()
-            comment.cmTitle = cmt
-            comment.userName = "Fatih"
-            post?.comments.insert(comment, atIndex: 0)
-            appsCollectionView.reloadData()
-            let indexPath = NSIndexPath(forItem: 0, inSection: 0)
-            appsCollectionView.selectItemAtIndexPath(indexPath, animated: true, scrollPosition: .Left)
+            //let comment = Comment()
+            //comment.cmTitle = cmt
+            //comment.userName = "Fatih"
+            //post?.comments.insert(comment, atIndex: 0)
+            //appsCollectionView.reloadData()
+            //let indexPath = NSIndexPath(forItem: 0, inSection: 0)
+            //appsCollectionView.selectItemAtIndexPath(indexPath, animated: true, scrollPosition: .Left)
+            self.delegate?.isLogin()
+            
             //let newIndexPath = NSIndexPath(forRow: post!.comments.count, inSection: 0)
             //appsCollectionView.insertItemsAtIndexPaths([newIndexPath]
             //self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y,UIScreen.mainScreen().bounds.width, 340)
             //mainColectionView!.frame = CGRectMake(mainColectionView!.frame.origin.x, mainColectionView!.frame.origin.y,UIScreen.mainScreen().bounds.width, 350)
             
         }
-        else
-        {
-            
-            print("mesaj gelecek ")
         }
+     
     }
     func setupViews(){
         let layout = UICollectionViewFlowLayout()
@@ -175,7 +179,7 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         appsCollectionView.delegate = self
         appsCollectionView.registerClass(CommentCell.self, forCellWithReuseIdentifier: "commentid")
         
-        btnHapy.addTarget(self, action: Selector("btnTouchHapy:"), forControlEvents: .TouchDown)
+        btnHapy.addTarget(self, action: #selector(FeedCell.btnTouchHapy(_:)), forControlEvents: .TouchDown)
         btnSend.addTarget(self, action: Selector("btnSendCommentTouch:"), forControlEvents: .TouchDown)
         addSubview(labelTitle)
         addSubview(labelSourceName)
@@ -194,6 +198,7 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         
         //button.addTarget(self, action:Selector("ratingButtonTapped:"), forControlEvents: .TouchDown)
         //let horizontalConstraintsRedBlue = NSLayoutConstraint.constraintsWithVisualFormat("H:|-spacing-[red(>=lowWidth,<=highWidth@priority)]-redBlueSpacing-[blue(==red)]-spacing-|", options: NSLayoutFormatOptions(), metrics: metrics, views: views)
+        
         addConstraintsWithFormat("H:|-8-[v0]-8-|", views: labelTitle)
         addConstraintsWithFormat("H:|-8-[v0]-8-|", views: labelSourceName)
         addConstraintsWithFormat("H:|-8-[v0]-8-|", views: labelLink)
@@ -235,7 +240,7 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         return  btn
     }
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print("number item")
+        
         if let count = post?.comments.count {
             return count
         }

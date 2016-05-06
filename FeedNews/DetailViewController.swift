@@ -17,7 +17,7 @@ class DetailViewController: UIViewController {
         if let title = post?.title{
           navigationItem.title = title
         }
-        navigationController?.navigationBar.tintColor = UIColor.whiteColor()
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .Plain, target: nil, action: nil)
         
         setupViews()
         
@@ -144,7 +144,7 @@ class DetailViewController: UIViewController {
                     let json = try NSJSONSerialization.JSONObjectWithData( jdata!, options: NSJSONReadingOptions.AllowFragments) //NSJSONSerialization.JSONObjectWithData(jdata!, options: .AllowFragments)
                     
                     if let img = json["img"] as? String ,let pr = json["pr"] as? String{
-                        
+                        print("img:\(img)")
                         dispatch_async(dispatch_get_main_queue(), {
                             
                         
@@ -154,7 +154,11 @@ class DetailViewController: UIViewController {
                                 {
                                     
                                     (data2,response,error2) in
+                                    if(error2 != nil){
                                     
+                                        print("picture upload error")
+                                        return
+                                    }
                                     dispatch_async(dispatch_get_main_queue(), {
                                         let img = UIImage(data:data2!)
                                         self.imageView.image = img;

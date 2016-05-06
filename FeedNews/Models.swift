@@ -20,3 +20,17 @@ class Comment{
     var cmTitle:String?
     var userName:String?
 }
+class User{
+    static var userName:String?
+    static var email:String?
+    
+    static func isLogin() -> Bool
+    {
+        if let token = FBSDKAccessToken.currentAccessToken() {
+            return true
+        }else{
+            print("baglanti yok")
+        }
+      return false
+    }
+}

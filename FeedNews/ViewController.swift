@@ -11,37 +11,56 @@ let cellId="cellId"
 let commentCellId="CommentcellId"
 let MAX_COMMENTS_HEIGT :Int = 200
 
-class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
+class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLayout ,FeedCellDelegate{
     var posts = [Post]()
     let headerCell = "headerCellid"
-        override func viewDidLoad() {
+  
+    override func viewDidLoad() {
         super.viewDidLoad()
+         
         // Do any additional setup after loading the view, typically from a nib.
      
         initPost("gundem")
        
         //UIApplication.sharedApplication().networkActivityIndicatorVisible = true
-        view.addSubview(indicator)
             
-            self.view.addConstraint(NSLayoutConstraint(item: indicator, attribute: .CenterX , relatedBy: .Equal, toItem: self.view, attribute: .CenterX, multiplier: 1, constant: 0))
-            self.view.addConstraint(NSLayoutConstraint(item: indicator, attribute: .CenterY , relatedBy: .Equal, toItem: self.view, attribute: .CenterY, multiplier: 1, constant: 0))
+   
 
         collectionView?.backgroundColor = UIColor.rgb(242, green: 242, blue: 242)
         navigationItem.title = "New Feed"
         collectionView?.alwaysBounceVertical = true
         collectionView?.registerClass(FeedCell.self, forCellWithReuseIdentifier: cellId)
         collectionView?.registerClass(HeaderCell.self , forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: headerCell)
+        loadingView.frame = CGRect(x: 0, y: 100, width: self.view.frame.width, height: self.view.frame.height-100)
+        self.view.addSubview(loadingView)
+        loadingView.addSubview(indicator)
+        self.view.addConstraint(NSLayoutConstraint(item: indicator, attribute: .CenterX, relatedBy: .Equal, toItem: self.view, attribute: .CenterX, multiplier: 1, constant: 0))
+        self.view.addConstraint(NSLayoutConstraint(item: indicator, attribute: .CenterY, relatedBy: .Equal, toItem: self.view, attribute: .CenterY, multiplier: 1, constant: 0))
+           
     }
     let indicator : UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(frame: CGRect(x: 5, y: 5, width: 50, height: 50))
         indicator.hidesWhenStopped = true
         indicator.translatesAutoresizingMaskIntoConstraints = false
         indicator.activityIndicatorViewStyle = .Gray
-        indicator.color = UIColor.blueColor()
+        indicator.color = UIColor(red: 28/255, green: 164/255, blue: 179/255, alpha: 1)
         indicator.frame = CGRect(x: 0, y: 0, width: 300, height: 300)
         return indicator
     }()
+    let loadingView:UIView = {
+        let v1:UIView = UIView()
+        
+        
+        v1.backgroundColor = UIColor.whiteColor()
+        
+        return v1;
+    }()
+    func isLogin(){
+       let logiC = LoginViewController()
+        navigationController?.pushViewController(logiC, animated: true)
+    }
     func initPost(category: String){
+        loadingView.hidden = false
         indicator.startAnimating()
         let url = NSURL(string: "http://198.38.92.235:8081/getByCategory?ct=" + category)
         //let url = "http://198.38.92.235:8081/getData?url=http://www.hurriyet.com.tr/real-betis-0-2-barcelona-40097396"
@@ -54,6 +73,7 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
                 dispatch_async(dispatch_get_main_queue(), {
                     
                     self.indicator.stopAnimating()
+                    self.loadingView.hidden = true
                 })
                 return
             }
@@ -83,7 +103,7 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
                         
                         self.indicator.stopAnimating()
                         self.collectionView?.reloadData()
-                        
+                        self.loadingView.hidden = true
                         
                     })
                     
@@ -108,7 +128,7 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
     override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let fc = collectionView.dequeueReusableCellWithReuseIdentifier(cellId, forIndexPath: indexPath) as! FeedCell
         fc.post = posts[indexPath.row]
-        print(indexPath.row)
+         fc.delegate = self
         return fc
     }
     
@@ -140,7 +160,7 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
             }
         }
         */
-        return CGSizeMake(view.frame.width,320)
+        return CGSizeMake(view.frame.width-20,320)
     }
 
     override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
@@ -166,9 +186,16 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
         cv.post = posts[indexPath.row]
         navigationController?.pushViewController(cv, animated: true)
     }
-    
+
+    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAtIndex section: Int) -> UIEdgeInsets {
+        let sectionInsets = UIEdgeInsets(top: 10.0, left: 0.0, bottom: 0.0, right: 0.0)
+        return sectionInsets //UIEdgeInsetsMake(5, 5, 5, 5)
+    }
+ 
     func changeCategory(categoryName:String){
+    
         posts = [Post]()
+        collectionView?.reloadData()
         self.initPost(categoryName.replace("ö", withString: "o").replace("ü", withString: "u").lowercaseString)
 
         /*
@@ -190,8 +217,12 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
         let delay = seconds * Double(NSEC_PER_SEC)  // nanoseconds per seconds
         let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
         
+        let seconds = 3.0
+        
+        let delay = seconds * Double(NSEC_PER_SEC)  // nanoseconds per seconds
+        let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
         dispatch_after(dispatchTime, dispatch_get_main_queue(), {
-           
+            
             self.initPost(categoryName.replace("ö", withString: "o").replace("ü", withString: "u").lowercaseString)
             self.collectionView?.reloadData()
             // here code perfomed with delay
@@ -206,6 +237,7 @@ class HeaderCell : UICollectionViewCell {
     var viewController: FeedController?
     override init(frame: CGRect) {
         super.init(frame: frame)
+        self.backgroundColor = UIColor.whiteColor()
         setupViews()
     }
     required init?(coder aDecoder: NSCoder) {
@@ -220,7 +252,7 @@ class HeaderCell : UICollectionViewCell {
     func setupViews(){
     
         addSubview(segmentedControl)
-        segmentedControl.addTarget(self, action: Selector("indexChanged:"), forControlEvents: .ValueChanged)
+        segmentedControl.addTarget(self, action: #selector(HeaderCell.indexChanged(_:)), forControlEvents: .ValueChanged)
         addConstraintsWithFormat("H:|-8-[v0]-8-|", views: segmentedControl)
         addConstraintsWithFormat("V:|-8-[v0]-8-|", views: segmentedControl)
     }
