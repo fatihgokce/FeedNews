@@ -8,7 +8,7 @@
 
 import UIKit
 import Google
-class LoginViewController: UIViewController ,GIDSignInUIDelegate ,FBSDKLoginButtonDelegate{
+class LoginViewController: UIViewController ,GIDSignInUIDelegate ,GIDSignInDelegate,FBSDKLoginButtonDelegate{
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,9 +22,12 @@ class LoginViewController: UIViewController ,GIDSignInUIDelegate ,FBSDKLoginButt
         //btnGoogle.addTarget(self, action: #selector(LoginViewController.testTap(_:)), forControlEvents: .TouchDown)
         self.view.addSubview(btnGoogle)
         setupViews()
-        
+        GIDSignIn.sharedInstance().delegate = self
+
        
         GIDSignIn.sharedInstance().uiDelegate = self
+      
+       
     }
     let loginButton : FBSDKLoginButton = {
         
@@ -47,6 +50,12 @@ class LoginViewController: UIViewController ,GIDSignInUIDelegate ,FBSDKLoginButt
         
         self.view.addConstraint(NSLayoutConstraint(item: btnGoogle, attribute: .CenterX , relatedBy: .Equal, toItem: loginButton, attribute: .CenterX, multiplier: 1, constant: 0))
         self.view.addConstraint(NSLayoutConstraint(item: btnGoogle, attribute: .Top, relatedBy: .Equal, toItem: loginButton, attribute: .Bottom, multiplier: 1, constant: 20))
+    }
+    func signIn(signIn: GIDSignIn!, didSignInForUser user: GIDGoogleUser!, withError error: NSError!) {
+        print(user.profile.email)
+        
+        navigationController?.popViewControllerAnimated(true)
+
     }
     func testTap(sender:UIButton){
         
@@ -80,9 +89,7 @@ class LoginViewController: UIViewController ,GIDSignInUIDelegate ,FBSDKLoginButt
     }
     func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!) {
         print("completed login")
-        if let token = FBSDKAccessToken.currentAccessToken() {
-            fetchProfile()
-        }
+        User.isLogin()
     }
     func loginButtonWillLogin(loginButton: FBSDKLoginButton!) -> Bool {
         return true

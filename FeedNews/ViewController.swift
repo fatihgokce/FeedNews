@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import Social
+
 let cellId="cellId"
 let commentCellId="CommentcellId"
 let MAX_COMMENTS_HEIGT :Int = 200
@@ -17,14 +19,14 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
   
     override func viewDidLoad() {
         super.viewDidLoad()
-         
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .Plain, target: nil, action: nil) 
         // Do any additional setup after loading the view, typically from a nib.
      
         initPost("gundem")
        
         //UIApplication.sharedApplication().networkActivityIndicatorVisible = true
             
-   
+        User.isLogin()
 
         collectionView?.backgroundColor = UIColor.rgb(242, green: 242, blue: 242)
         navigationItem.title = "New Feed"
@@ -56,8 +58,41 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
         return v1;
     }()
     func isLogin(){
-       let logiC = LoginViewController()
-        navigationController?.pushViewController(logiC, animated: true)
+        if(User.email == nil && !User.isLogin())
+        {
+            let logiC = LoginViewController()
+            
+            navigationController?.pushViewController(logiC, animated: true)
+        }
+        else{
+            // todo set data comment
+        }
+    }
+    func shareTwitter(text : String){
+    
+        if SLComposeViewController.isAvailableForServiceType(SLServiceTypeTwitter){
+            let twitterSheet:SLComposeViewController = SLComposeViewController(forServiceType: SLServiceTypeTwitter)
+            twitterSheet.setInitialText("Twitter'da paylaş")
+            self.presentViewController(twitterSheet, animated: true, completion: nil)
+        } else {
+            let alert = UIAlertController(title: "Ayarlar", message: "Paylaşmak için bir Twitter hesabına giriş yapınız..", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+            self.presentViewController(alert, animated: true, completion: nil)
+        }
+    }
+    func shareFacebook(text : String){
+        
+        
+        if SLComposeViewController.isAvailableForServiceType(SLServiceTypeFacebook){
+            let facebookSheet:SLComposeViewController = SLComposeViewController(forServiceType: SLServiceTypeFacebook)
+            facebookSheet.setInitialText("Facebook'ta Paylaş")
+            self.presentViewController(facebookSheet, animated: true, completion: nil)
+        } else {
+            let alert = UIAlertController(title: "Ayarlar", message: "Paylaşmak için bir Facebook hesabına giriş yapınız.", preferredStyle: UIAlertControllerStyle.Alert)
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+            self.presentViewController(alert, animated: true, completion: nil)
+        }
+        
     }
     func initPost(category: String){
         loadingView.hidden = false
@@ -74,6 +109,12 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
                     
                     self.indicator.stopAnimating()
                     self.loadingView.hidden = true
+                    if(!Reachability.isConnectedToNetwork()){
+                        let alert = UIAlertController(title: "", message: "internet bağlantısı yok", preferredStyle: UIAlertControllerStyle.Alert)
+                        //indicator.center = alert.view.center
+                        alert.addAction(UIAlertAction(title: "Tamam", style: UIAlertActionStyle.Default,handler: nil))
+                        self.presentViewController(alert, animated: true, completion: nil)
+                    }
                 })
                 return
             }
@@ -113,6 +154,8 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
             {
                 print("error serializing JSON: \(error)")
                 //self.spc.stopAnimating()
+                
+               
             }
         }
         task.resume()

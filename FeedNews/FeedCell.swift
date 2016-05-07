@@ -7,9 +7,14 @@
 //
 
 import UIKit
+
 protocol  FeedCellDelegate {
     func isLogin()
+    func shareTwitter(text : String)
+    func shareFacebook(text : String)
 }
+
+
 class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionViewDelegate , UICollectionViewDelegateFlowLayout
 {
     var delegate:FeedCellDelegate?
@@ -166,9 +171,23 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         }
      
     }
+    func tappedFacebook(sender: UIButton){
+        if self.delegate != nil && self.labelTitle.text != nil {
+            
+            self.delegate?.shareFacebook((self.post?.title!)!)
+        }
+        
+    }
+    func tappedTwitter(sender : UIButton){
+    
+        if self.delegate != nil && self.post?.title != nil {
+            
+            self.delegate?.shareTwitter((self.post?.title!)!)
+        }
+    }
     func setupViews(){
         let layout = UICollectionViewFlowLayout()
-        //layout.scrollDirection = .Vertical
+        //layout.scrollDirection = .Vertical 
         
         appsCollectionView = UICollectionView(frame: self.frame, collectionViewLayout: layout)  //(frame, collectionViewLayout: layout)
         
@@ -181,6 +200,11 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         
         btnHapy.addTarget(self, action: #selector(FeedCell.btnTouchHapy(_:)), forControlEvents: .TouchDown)
         btnSend.addTarget(self, action: Selector("btnSendCommentTouch:"), forControlEvents: .TouchDown)
+        btnFacebook.addTarget(self, action: #selector(FeedCell.tappedFacebook(_:)), forControlEvents: .TouchDown)
+        
+        btnTwitter.addTarget(self, action: #selector(FeedCell.tappedTwitter(_:)), forControlEvents: .TouchDown)
+        
+       
         addSubview(labelTitle)
         addSubview(labelSourceName)
         addSubview(labelLink)

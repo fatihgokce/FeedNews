@@ -10,7 +10,7 @@ import UIKit
 import CoreData
 import Google
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate,GIDSignInDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
@@ -33,13 +33,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate,GIDSignInDelegate {
         GGLContext.sharedInstance().configureWithError(&configureError)
         assert(configureError == nil, "Error configuring Google services: \(configureError)")
         
-        GIDSignIn.sharedInstance().delegate = self
-    
+            
         return true
     }
-    func signIn(signIn: GIDSignIn!, didSignInForUser user: GIDGoogleUser!, withError error: NSError!) {
-        print(user.profile.email)
-    }
+  
     func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool {
         print(url.scheme)
         if url.scheme == "fb1709393166005211" {
