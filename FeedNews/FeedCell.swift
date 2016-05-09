@@ -9,7 +9,7 @@
 import UIKit
 
 protocol  FeedCellDelegate {
-    func isLogin()
+    func isLogin(text :String,linkId:Int,succeedHandler:() -> ()) 
     func shareTwitter(text : String)
     func shareFacebook(text : String)
 }
@@ -17,6 +17,7 @@ protocol  FeedCellDelegate {
 
 class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionViewDelegate , UICollectionViewDelegateFlowLayout
 {
+    var comments = [Comment]()
     var delegate:FeedCellDelegate?
     var post: Post?{
         didSet{
@@ -29,6 +30,10 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
                 
                 labelLink.text = link
             }
+            let cm1 = Comment()
+            cm1.cmTitle = "fff"
+            cm1.userName = "fdfd"
+            comments.append(cm1)
             
         }
     }
@@ -160,7 +165,16 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
             //appsCollectionView.reloadData()
             //let indexPath = NSIndexPath(forItem: 0, inSection: 0)
             //appsCollectionView.selectItemAtIndexPath(indexPath, animated: true, scrollPosition: .Left)
-            self.delegate?.isLogin()
+            print(post?.linkId)
+            self.delegate?.isLogin(cmt,linkId: (post?.linkId!)!,succeedHandler: {
+            () -> () in
+                
+                let comment = Comment()
+                comment.cmTitle = cmt
+                comment.userName = User.name
+                self.comments.insert(comment, atIndex: 0)
+                self.appsCollectionView.reloadData()
+            })
             
             //let newIndexPath = NSIndexPath(forRow: post!.comments.count, inSection: 0)
             //appsCollectionView.insertItemsAtIndexPaths([newIndexPath]
@@ -265,16 +279,12 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
     }
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
-        if let count = post?.comments.count {
-            return count
-        }
-        
-        return 0
+        return comments.count
     }
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("commentid", forIndexPath: indexPath) as! CommentCell
-        cell.comment = post?.comments[indexPath.row]
+        cell.comment = comments[indexPath.row]
         
         if totalHeigt < 200 {
             //appsCollectionView.frame = CGRectMake(appsCollectionView.frame.origin.x, appsCollectionView.frame.origin.y,UIScreen.mainScreen().bounds.width, totalHeigt)
@@ -294,9 +304,9 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         */
         var height:CGFloat = 5
         let kh:CGFloat =  5
-        if let title = post?.comments[indexPath.row].cmTitle {
+        if let title = comments[indexPath.row].cmTitle {
             
-            height =  (post?.comments[indexPath.row].userName?.calculateHeight(UIFont.systemFontOfSize(12)))! + (post?.comments[indexPath.row].cmTitle?.calculateHeight(UIFont.systemFontOfSize(13)))!
+            height =  (comments[indexPath.row].userName?.calculateHeight(UIFont.systemFontOfSize(12)))! + (comments[indexPath.row].cmTitle?.calculateHeight(UIFont.systemFontOfSize(13)))!
             if height > 50
             {
                 height = 40
@@ -308,7 +318,7 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         
         //addConstraintsWithFormat("H:|-8-[v0]-8-|", views: appsCollectionView)
         //addConstraintsWithFormat("V:[v0]-10-[v1(>=" + String(height)  + ")]", views: btnUnHapy,appsCollectionView)
-        return CGSizeMake(UIScreen.mainScreen().bounds.width - 16, height)
+        return CGSizeMake(UIScreen.mainScreen().bounds.width - 16, 30)
     }
     
     

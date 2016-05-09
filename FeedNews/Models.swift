@@ -15,6 +15,7 @@ class Post {
     var cntHapy: Int?
     var cntNrm: Int?
     var cntUnHapy: Int?
+    var linkId:Int?
     var comments = [Comment]()
 }
 class Comment{

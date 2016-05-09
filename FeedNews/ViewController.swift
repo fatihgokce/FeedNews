@@ -21,7 +21,11 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
         super.viewDidLoad()
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .Plain, target: nil, action: nil) 
         // Do any additional setup after loading the view, typically from a nib.
-     
+        if let ly = collectionView?.collectionViewLayout as! UICollectionViewFlowLayout!
+        {
+            //ly.scrollDirection = .Vertical
+        }
+        //collectionView?.collectionViewLayout = layout
         initPost("gundem")
        
         //UIApplication.sharedApplication().networkActivityIndicatorVisible = true
@@ -57,15 +61,73 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
         
         return v1;
     }()
-    func isLogin(){
+    func isLogin(text :String,linkId:Int,succeedHandler:()->()){
         if(User.email == nil && !User.isLogin())
         {
             let logiC = LoginViewController()
             
             navigationController?.pushViewController(logiC, animated: true)
+           
         }
         else{
-            // todo set data comment
+            //loadingView.hidden = false
+            //indicator.startAnimating()
+            let linkS:String! = "http://198.38.92.235:8081/setComment?comment=\(text)&email=\(User.email!)&link_id=\(linkId)&name=\(User.name!)"
+            
+            print(linkS)
+            //let url = NSURL(string: linkS)
+            let url = NSURL(string: linkS.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding)!)!
+            let task = NSURLSession.sharedSession().dataTaskWithURL(url)
+            {
+                (data, response, error) in
+                if(error != nil){
+                    
+                    print("lost connection")
+                    dispatch_async(dispatch_get_main_queue(), {
+                        
+                        self.indicator.stopAnimating()
+                        self.loadingView.hidden = true
+                        if(!Reachability.isConnectedToNetwork()){
+                            let alert = UIAlertController(title: "", message: "internet bağlantısı yok", preferredStyle: UIAlertControllerStyle.Alert)
+                            //indicator.center = alert.view.center
+                            alert.addAction(UIAlertAction(title: "Tamam", style: UIAlertActionStyle.Default,handler: nil))
+                            self.presentViewController(alert, animated: true, completion: nil)
+                        }
+                    })
+                    return
+                }
+                do {
+                    let json = try NSJSONSerialization.JSONObjectWithData( data!, options: NSJSONReadingOptions.MutableContainers) as! NSDictionary
+                    //NSJSONSerialization.JSONObjectWithData(jdata!, options: .AllowFragments)
+                    
+                    
+                    if let b = json["s"] as? Bool {
+                     
+                        if b == true {
+                            dispatch_async(dispatch_get_main_queue(), {
+                            
+                                succeedHandler()
+
+                            })
+                            
+                        }
+                        else
+                        {
+                        // TODO: 
+                            print("hata uyari")
+                        }
+                        
+                        
+                    }
+                } catch
+                {
+                    print("error serializing JSON: \(error)")
+                    //self.spc.stopAnimating()
+                    
+                    
+                }
+            }
+            task.resume()
         }
     }
     func shareTwitter(text : String){
@@ -137,6 +199,7 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
                         post1.title=pst["title"] as? String
                         post1.link = pst["link"] as? String
                         post1.sourceName = post1.link?.componentsSeparatedByString(".")[1]
+                        post1.linkId = pst["link_id"] as? Int
                         self.posts.append(post1)
                     }
                     dispatch_async(dispatch_get_main_queue(), {
@@ -203,7 +266,7 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
             }
         }
         */
-        return CGSizeMake(view.frame.width-20,320)
+        return CGSizeMake(view.frame.width-15,320)
     }
 
     override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
@@ -346,8 +409,8 @@ class CommentCell: UICollectionViewCell {
         addSubview(labelComment)
         addSubview(byLabel)
         
-        addConstraintsWithFormat("H:|-0-[v0]-0-|", views: labelComment)
-        addConstraintsWithFormat("H:|-5-[v0]", views: byLabel)
-        addConstraintsWithFormat("V:|[v0(>=20,<=40)]-5-[v1]", views: labelComment,byLabel)
+        addConstraintsWithFormat("H:|-8-[v0]-0-|", views: labelComment)
+        addConstraintsWithFormat("H:|-8-[v0]", views: byLabel)
+        addConstraintsWithFormat("V:|[v0]-1-[v1]", views: labelComment,byLabel)
     }
 }
