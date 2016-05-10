@@ -16,7 +16,7 @@ let MAX_COMMENTS_HEIGT :Int = 200
 class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLayout ,FeedCellDelegate{
     var posts = [Post]()
     let headerCell = "headerCellid"
-  
+    var cachedCommens = [Int]()
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .Plain, target: nil, action: nil) 
@@ -61,6 +61,61 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
         
         return v1;
     }()
+    func getComments(linkId:Int,succeedHandler:(commnts:[Comment]) -> ())
+    {
+        let linkS:String! = "http://198.38.92.235:8081/getComments?link_id=\(linkId)"
+        
+        
+        //let url = NSURL(string: linkS)
+        let url = NSURL(string: linkS.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding)!)!
+        let task = NSURLSession.sharedSession().dataTaskWithURL(url)
+        {
+            (data, response, error) in
+            if(error != nil){
+                
+                print("lost connection")
+                dispatch_async(dispatch_get_main_queue(), {
+                    
+                
+                    if(!Reachability.isConnectedToNetwork()){
+                        let alert = UIAlertController(title: "", message: "internet bağlantısı yok", preferredStyle: UIAlertControllerStyle.Alert)
+                        //indicator.center = alert.view.center
+                        alert.addAction(UIAlertAction(title: "Tamam", style: UIAlertActionStyle.Default,handler: nil))
+                        self.presentViewController(alert, animated: true, completion: nil)
+                    }
+                })
+                return
+            }
+            do {
+                let json = try NSJSONSerialization.JSONObjectWithData( data!, options: NSJSONReadingOptions.MutableContainers)
+                //NSJSONSerialization.JSONObjectWithData(jdata!, options: .AllowFragments)
+                
+                var comments = [Comment]()
+                for  comment in (json as? [[String: AnyObject]])!  {
+                    
+                   let com1 = Comment()
+                    com1.cmTitle = (comment["comment"] as? String)?.replace("'", withString: "!#")
+                    com1.userName = comment["name"] as? String
+                    comments.append(com1)
+                    
+                }
+                dispatch_async(dispatch_get_main_queue(), {
+                    
+                    succeedHandler(commnts: comments)
+                    
+                })
+
+                
+            } catch
+            {
+                print("error serializing JSON: \(error)")
+                //self.spc.stopAnimating()
+                
+                
+            }
+        }
+        task.resume()
+    }
     func isLogin(text :String,linkId:Int,succeedHandler:()->()){
         if(User.email == nil && !User.isLogin())
         {
@@ -70,11 +125,11 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
            
         }
         else{
-            //loadingView.hidden = false
-            //indicator.startAnimating()
-            let linkS:String! = "http://198.38.92.235:8081/setComment?comment=\(text)&email=\(User.email!)&link_id=\(linkId)&name=\(User.name!)"
+            let msj = text.replace("'", withString: "!#")
+            let linkS:String! = "http://198.38.92.235:8081/setComment?comment=\(msj)&email=\(User.email!)&link_id=\(linkId)&name=\(User.name!)"
             
             print(linkS)
+           
             //let url = NSURL(string: linkS)
             let url = NSURL(string: linkS.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding)!)!
             let task = NSURLSession.sharedSession().dataTaskWithURL(url)
@@ -234,7 +289,19 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
     override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let fc = collectionView.dequeueReusableCellWithReuseIdentifier(cellId, forIndexPath: indexPath) as! FeedCell
         fc.post = posts[indexPath.row]
-         fc.delegate = self
+        fc.delegate = self
+        /*
+        if let l = cachedCommens.indexOf((fc.post?.linkId)!)
+        {
+            print(l)
+        }
+        else{
+        
+            cachedCommens.append((fc.post?.linkId)!)
+            fc.getCommants()
+        }
+        */
+        fc.getCommants()
         return fc
     }
     
@@ -274,7 +341,7 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
         for cell in collectionView!.visibleCells() {
             
             if let fc = cell as? FeedCell {
-                fc.appsCollectionView.collectionViewLayout.invalidateLayout()
+                //fc.appsCollectionView.collectionViewLayout.invalidateLayout()
             }
         }
         collectionView?.collectionViewLayout.invalidateLayout()
@@ -368,7 +435,7 @@ class HeaderCell : UICollectionViewCell {
     }
 }
 
-class CommentCell: UICollectionViewCell {
+class CommentCell: UITableViewCell {
     var comment : Comment? {
         didSet{
         
@@ -376,16 +443,49 @@ class CommentCell: UICollectionViewCell {
             
                 byLabel.text = n
                 labelComment.text = t
+                 setNeedsLayout()
+                //byLabel.frame = CGRect(x: 0, y: 0, width: UIScreen.mainScreen().bounds.width - 16, height:  heightForView(byLabel.text!, font: UIFont.systemFontOfSize(12)))
+
+                labelComment.frame = CGRect(x: 0, y: 0, width: UIScreen.mainScreen().bounds.width - 16, height:  heightForView(labelComment.text!, font: UIFont.systemFontOfSize(13))+5 )
+                
+                print(heightForView(byLabel.text!, font: UIFont.systemFontOfSize(12)))
+                
+                print(heightForView(labelComment.text!, font: UIFont.systemFontOfSize(13)))
+                labelComment.sizeToFit()
+                labelComment.setNeedsLayout()
+                
+
             }
         }
     }
+    func heightForView(text:String, font:UIFont) -> CGFloat{
+        let label:UILabel = UILabel(frame: CGRectMake(16, 0, UIScreen.mainScreen().bounds.width , CGFloat.max))
+        label.numberOfLines = 0
+        label.lineBreakMode = NSLineBreakMode.ByWordWrapping
+        label.font = font
+        label.text = text
+        
+        label.sizeToFit()
+        return label.frame.height
+    }
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+          }
+    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupViews()
+
+    }
+    /*
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
     }
+ 
     required init?(coder aDecoder: NSCoder) {
         fatalError("ddd")
     }
+ */
     var byLabel : UILabel = {
     
         let lb = UILabel()
@@ -393,16 +493,23 @@ class CommentCell: UICollectionViewCell {
         lb.font = UIFont.systemFontOfSize(12)
         lb.text = "Cüneyt"
         lb.translatesAutoresizingMaskIntoConstraints = false
+        //lb.setNeedsLayout()
+        lb.numberOfLines = 0
+        //lb.sizeToFit()
         return lb
     }()
     var labelComment :UILabel = {
         
         let label = UILabel()
-        label.text="Sample name"
+        //label.text="Sample name"
+        //label.frame = CGRect(x: 0, y: 0, width: UIScreen.mainScreen().bounds.width - 16, height: 0)
         label.textColor = UIColor.rgb(83, green: 84, blue: 84)
         label.lineBreakMode = .ByWordWrapping
-        label.numberOfLines = 2
+        label.numberOfLines = 0
         label.font = UIFont.systemFontOfSize(13)
+        label.sizeToFit()
+        //label.frame.size = label.bounds.size
+        //label.sizeThatFits(CGSize(width: UIScreen.mainScreen().bounds.width - 16, height: CGFloat(MAXFLOAT)))
         return label
     }()
     func setupViews(){
@@ -411,6 +518,8 @@ class CommentCell: UICollectionViewCell {
         
         addConstraintsWithFormat("H:|-8-[v0]-0-|", views: labelComment)
         addConstraintsWithFormat("H:|-8-[v0]", views: byLabel)
-        addConstraintsWithFormat("V:|[v0]-1-[v1]", views: labelComment,byLabel)
+        addConstraintsWithFormat("V:|[v0][v1]", views: labelComment,byLabel)
+        
+        //addConstraint(NSLayoutConstraint(item: labelComment, attribute: .Height, relatedBy: .GreaterThanOrEqual, toItem: nil, attribute: .Height, multiplier: 1, constant: 20))
     }
 }

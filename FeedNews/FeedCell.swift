@@ -12,10 +12,11 @@ protocol  FeedCellDelegate {
     func isLogin(text :String,linkId:Int,succeedHandler:() -> ()) 
     func shareTwitter(text : String)
     func shareFacebook(text : String)
+    func getComments(linkId:Int,succeedHandler:(commnts:[Comment]) -> ())
 }
 
-
-class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionViewDelegate , UICollectionViewDelegateFlowLayout
+//UICollectionViewDataSource
+class FeedCell : UICollectionViewCell, UICollectionViewDelegate , UICollectionViewDelegateFlowLayout,UITableViewDataSource,UITableViewDelegate
 {
     var comments = [Comment]()
     var delegate:FeedCellDelegate?
@@ -30,12 +31,21 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
                 
                 labelLink.text = link
             }
-            let cm1 = Comment()
-            cm1.cmTitle = "fff"
-            cm1.userName = "fdfd"
-            comments.append(cm1)
-            
+                       
         }
+    }
+    func getCommants()
+    {
+        self.delegate?.getComments((post?.linkId!)!, succeedHandler: {
+            (comments) in
+            
+            self.comments = comments
+            self.appsCollectionView.reloadData()
+            self.appsCollectionView.setNeedsLayout()
+            self.appsCollectionView.layoutIfNeeded()
+            self.appsCollectionView.layoutSubviews()
+        })
+    
     }
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -47,7 +57,7 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
     required init?(coder aDecoder: NSCoder) {
         fatalError("ddd")
     }
-    var appsCollectionView: UICollectionView!
+    var appsCollectionView: UITableView!
     let appsCollectionView2: UIView = {
         
         let v = UIView(frame: CGRect())
@@ -203,15 +213,18 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         let layout = UICollectionViewFlowLayout()
         //layout.scrollDirection = .Vertical 
         
-        appsCollectionView = UICollectionView(frame: self.frame, collectionViewLayout: layout)  //(frame, collectionViewLayout: layout)
+        appsCollectionView = UITableView()  //UICollectionView(frame: self.frame, collectionViewLayout: layout)  //(frame, collectionViewLayout: layout)
         
         appsCollectionView.backgroundColor = UIColor.clearColor()
         appsCollectionView.translatesAutoresizingMaskIntoConstraints = false
         appsCollectionView.alwaysBounceVertical = true
         appsCollectionView.dataSource = self
         appsCollectionView.delegate = self
-        appsCollectionView.registerClass(CommentCell.self, forCellWithReuseIdentifier: "commentid")
-        
+        //appsCollectionView.registerClass(CommentCell.self, forCellWithReuseIdentifier: "commentid")
+        self.appsCollectionView.registerClass(CommentCell.self, forCellReuseIdentifier: "commentid")
+        self.appsCollectionView.estimatedRowHeight = 33
+        self.appsCollectionView.rowHeight = UITableViewAutomaticDimension
+        appsCollectionView.separatorStyle = .None
         btnHapy.addTarget(self, action: #selector(FeedCell.btnTouchHapy(_:)), forControlEvents: .TouchDown)
         btnSend.addTarget(self, action: Selector("btnSendCommentTouch:"), forControlEvents: .TouchDown)
         btnFacebook.addTarget(self, action: #selector(FeedCell.tappedFacebook(_:)), forControlEvents: .TouchDown)
@@ -222,9 +235,9 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         addSubview(labelTitle)
         addSubview(labelSourceName)
         addSubview(labelLink)
-        addSubview(btnHapy)
-        addSubview(btnNrm)
-        addSubview(btnUnHapy)
+        //addSubview(btnHapy)
+        //addSubview(btnNrm)
+        //addSubview(btnUnHapy)
         addSubview(appsCollectionView)
         addSubview(txtComment)
         addSubview(btnSend)
@@ -240,7 +253,7 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         addConstraintsWithFormat("H:|-8-[v0]-8-|", views: labelTitle)
         addConstraintsWithFormat("H:|-8-[v0]-8-|", views: labelSourceName)
         addConstraintsWithFormat("H:|-8-[v0]-8-|", views: labelLink)
-        addConstraintsWithFormat("H:|-8-[v0(v2)][v1(v2)][v2(>=95,<=140)]", views: btnHapy,btnNrm,btnUnHapy)
+        //addConstraintsWithFormat("H:|-8-[v0(v2)][v1(v2)][v2(>=95,<=140)]", views: btnHapy,btnNrm,btnUnHapy)
         addConstraintsWithFormat("H:|-8-[v0]-8-|", views: appsCollectionView)
         addConstraintsWithFormat("H:|-8-[v0(>=100)]-8-[v1(<=60)]-8-|", views: txtComment,btnSend)
         addConstraintsWithFormat("H:|-8-[v0]-12-[v1]", views: btnTwitter,btnFacebook)
@@ -252,10 +265,10 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         addConstraintsWithFormat("V:|-5-[v0][v1]", views: labelTitle,labelSourceName)
         //addConstraintsWithFormat("V:[v0(30)]-[v1]", views: labelTitle,labelSourceName)
         addConstraintsWithFormat("V:[v0][v1]", views: labelSourceName,labelLink)
-        addConstraintsWithFormat("V:[v0]-10-[v1]", views: labelLink,btnHapy)
-        addConstraintsWithFormat("V:[v0]-10-[v1]", views: labelLink,btnNrm)
-        addConstraintsWithFormat("V:[v0]-10-[v1]", views: labelLink,btnUnHapy)
-        addConstraintsWithFormat("V:[v0]-10-[v1]", views: btnUnHapy,appsCollectionView)
+        //addConstraintsWithFormat("V:[v0]-10-[v1]", views: labelLink,btnHapy)
+        //addConstraintsWithFormat("V:[v0]-10-[v1]", views: labelLink,btnNrm)
+        //addConstraintsWithFormat("V:[v0]-10-[v1]", views: labelLink,btnUnHapy)
+        addConstraintsWithFormat("V:[v0]-10-[v1]", views: labelLink,appsCollectionView)
         addConstraintsWithFormat("V:[v0]-6-[v1]", views: appsCollectionView,btnTwitter)
         
         addConstraintsWithFormat("V:[v0(32)]-3-|", views: txtComment)
@@ -277,6 +290,26 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         
         return  btn
     }
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        
+        return 1
+    }
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
+        return self.comments.count
+    }
+    
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier("commentid", forIndexPath: indexPath) as! CommentCell
+        
+        //cell.textLabel?.text = self.searchResults[indexPath.row]
+        cell.comment = comments[indexPath.row]
+        
+        return cell
+    }
+    /*
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         return comments.count
@@ -302,24 +335,24 @@ class FeedCell : UICollectionViewCell, UICollectionViewDataSource, UICollectionV
         return CGSizeMake(view.frame.width, rect.height + knownHeiht + 16)
         }
         */
-        var height:CGFloat = 5
-        let kh:CGFloat =  5
+        var height:CGFloat = 1
+        let kh:CGFloat =  1
         if let title = comments[indexPath.row].cmTitle {
             
             height =  (comments[indexPath.row].userName?.calculateHeight(UIFont.systemFontOfSize(12)))! + (comments[indexPath.row].cmTitle?.calculateHeight(UIFont.systemFontOfSize(13)))!
-            if height > 50
+            if height >= 35
             {
-                height = 40
+                //height = 33
             }
         }
         print("cah:\(height + kh)")
-        height = height + kh
+        height = height + kh - 10
         totalHeigt += height
         
         //addConstraintsWithFormat("H:|-8-[v0]-8-|", views: appsCollectionView)
         //addConstraintsWithFormat("V:[v0]-10-[v1(>=" + String(height)  + ")]", views: btnUnHapy,appsCollectionView)
-        return CGSizeMake(UIScreen.mainScreen().bounds.width - 16, 30)
+        return CGSizeMake(UIScreen.mainScreen().bounds.width - 16, 33)
     }
-    
+    */
     
 }
