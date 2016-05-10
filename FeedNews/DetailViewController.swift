@@ -45,7 +45,7 @@ class DetailViewController: UIViewController {
         iv.layer.masksToBounds = true
         iv.layer.borderColor = UIColor.grayColor().CGColor
         iv.layer.borderWidth = 0.7
-        iv.backgroundColor = UIColor.greenColor()
+        iv.backgroundColor = UIColor.clearColor()
         return iv
     }()
     let textV : UITextView = {
@@ -93,7 +93,7 @@ class DetailViewController: UIViewController {
         self.scrolView.addSubview(contentView)
         self.contentView.addSubview(imageView)
         self.contentView.addSubview(textV)
-        self.contentView.addSubview(btn)
+        //self.contentView.addSubview(btn)
         self.scrolView.addSubview(indicator)
         addConstraint()
         getData()
@@ -104,7 +104,7 @@ class DetailViewController: UIViewController {
         self.view.addConstraintsWithFormat("H:|-0-[v0]-0-|", views: contentView)
         self.view.addConstraintsWithFormat("H:|-8-[v0]-8-|", views: imageView)
         self.view.addConstraintsWithFormat("H:|-8-[v0]-8-|", views: textV)
-        self.view.addConstraintsWithFormat("H:|-8-[v0]-8-|", views: btn)
+        //self.view.addConstraintsWithFormat("H:|-8-[v0]-8-|", views: btn)
         //self.view.addConstraintsWithFormat("V:|[v0]|", views: scrolView)
         self.view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-0-[v0]-0-|", options: NSLayoutFormatOptions(), metrics: nil, views: ["v0":scrolView]))
        
@@ -112,7 +112,7 @@ class DetailViewController: UIViewController {
          self.view.addConstraint(NSLayoutConstraint(item: indicator, attribute: .CenterX , relatedBy: .Equal, toItem: self.view, attribute: .CenterX, multiplier: 1, constant: 0))
          self.view.addConstraint(NSLayoutConstraint(item: indicator, attribute: .CenterY , relatedBy: .Equal, toItem: self.view, attribute: .CenterY, multiplier: 1, constant: 0))
         self.view.addConstraintsWithFormat("V:|-0-[v0]-0-|", views: contentView)
-        self.view.addConstraintsWithFormat("V:|-5-[v0(150)][v1][v2(40)]", views: imageView,textV,btn)
+        self.view.addConstraintsWithFormat("V:|-5-[v0(150)][v1]", views: imageView,textV)
         //self.view.addConstraintsWithFormat("V:[v0(80)][v1]", views: imageView,textV)
     }
  
